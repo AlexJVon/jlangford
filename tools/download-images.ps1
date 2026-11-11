@@ -10,8 +10,9 @@ $dest   = Join-Path $root "images\projects"
 $source = "https://www.jlangford.com/images/"
 New-Item -ItemType Directory -Force $dest | Out-Null
 
-$data  = Get-Content (Join-Path $root "js\projects.js") -Raw
-$files = [regex]::Matches($data, '"([^"]+\.(?:jpg|jpeg|png|gif))"') | ForEach-Object { $_.Groups[1].Value }
+$data  = (Get-Content (Join-Path $root "js\projects.js") -Raw) + (Get-Content (Join-Path $root "js\plans.js") -Raw)
+# Bare file names only — paths with a slash (plans/...) already live in the repo
+$files = [regex]::Matches($data, '"([^"/]+\.(?:jpg|jpeg|png|gif))"') | ForEach-Object { $_.Groups[1].Value }
 $files = @($files) + @("sketch%20transparent.png") | Sort-Object -Unique
 
 $ok = 0; $failed = @()

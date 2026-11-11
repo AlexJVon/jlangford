@@ -1,77 +1,65 @@
-# Jennifer Langford, AIA, CNU, PA — website redesign
+# Jennifer Langford, AIA, CNU, PA — website
 
-A rebuild of [jlangford.com](https://www.jlangford.com) (originally made in Adobe Muse) as a plain
-HTML/CSS/JS site that can be hosted free on GitHub Pages while it's being reviewed.
-
-**What changed from the old site**
-
-- **Full-width, responsive layout.** The old site was a fixed ~440px column in the middle of the screen.
-  This one fills the screen on desktop and works on phones and tablets.
-- **New photo viewer.** Clicking a project opens a full-screen gallery with large photos,
-  arrows / keyboard / swipe navigation, a thumbnail strip, and the project description beside it.
-  Each project has its own link (e.g. `portfolio.html#project=powell-building`).
-- **Filterable portfolio.** All 42 projects on one page, filterable by type.
+A rebuild of [jlangford.com](https://www.jlangford.com) (originally Adobe Muse) as a plain HTML/CSS/JS site.
+It needs no build step and is hosted free on GitHub Pages. It works on phones, tablets and desktops.
 
 ## Pages
 
-| File | Page |
+| File | What it is |
 | --- | --- |
-| `index.html` | Home |
-| `portfolio.html` | Portfolio + gallery viewer |
-| `philosophy.html` | Philosophy |
-| `credentials.html` | Credentials |
-| `contact.html` | Contact + map |
+| `index.html` | Home: intro, stats, featured projects, Plan Library preview, how a project works |
+| `portfolio.html` | Built work: 42 projects, filterable, full-screen photo galleries |
+| `plans.html` | **Plan Library**: every drawing set, searchable by type, beds, baths, stories, size, lot width and sheet type |
+| `plan.html?id=…` | One plan: zoomable drawing set, plain-English summary, technical specs, built photos, printable spec sheet |
+| `services.html` | What the studio offers, the six project phases, a builder's sheet list and code basis, and an FAQ |
+| `glossary.html` | ~50 architecture terms in plain English. Dotted-underlined words site-wide link here |
+| `philosophy.html`, `credentials.html`, `contact.html` | Philosophy, About/credentials, contact + email-composing inquiry form |
+| `add-plan.html` | **Studio tool** (not in the menu): a form that writes the code for a new or updated plan |
 
-## Editing projects and photos
+## Where to edit things
 
-Everything in the portfolio comes from **`js/projects.js`**. Each project looks like:
+| To change… | Edit |
+| --- | --- |
+| Phone, email, address, social links, menu | `js/layout.js` (top of file) |
+| Plans and drawings | Use `add-plan.html`, or edit `js/plans.js` (see **HOW-TO-ADD-PLANS.md**) |
+| Portfolio projects and photos | `js/projects.js` |
+| Glossary definitions | `js/glossary.js` |
+| Colors and fonts | `css/style.css` (`:root` at the top) |
 
-```js
-{
-  name: "Powell Building", category: "mixed-use", featured: true,
-  location: "Haile Village Center, Gainesville, FL",
-  cover: "front%20facade.jpg",            // optional — card photo (defaults to first image)
-  description: "…",
-  details: [["Year Built", "2006"], ["Builder", "Joyner Construction"]],
-  links: [["Project website", "https://…"]],
-  images: ["front%20facade.jpg", "powell%201.jpg", { src: "plan.png", caption: "First floor" }]
-}
-```
-
-- **Remove a photo:** delete it from `images`.
-- **Add a photo:** put the file in `images/projects/` and add its name to `images`.
-  (Use `%20` for spaces in file names, or just avoid spaces.)
-- **Feature on the home page:** add `featured: true`.
+Drawings for new plans go in `plans/<plan-id>/`. Portfolio photos go in `images/projects/`.
 
 ## Images
 
-Photos are loaded from `images/projects/`. Any photo not there yet automatically falls back to the
-copy on the old site, so the preview works before everything is copied over.
-
-To copy all current photos into the repo:
+Any photo missing from `images/projects/` falls back to the copy on the old site. To copy them all into the repo, run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\download-images.ps1
 ```
 
-**Image quality:** the old site only stores photos at about 480×360 px. They'll look soft on a
-modern full-width screen. If the original photos (or the `.muse` project file) are still around,
-swapping in larger versions (~2000 px wide) will make a big difference.
+The old site stores images at only about 480×360 px. Original photos and drawing scans (2000 px or more) will look far better.
 
-## Previewing locally
+## Content to confirm with Jennifer before launch
+
+Some copy was written to fill out the site and should be checked:
+
+- Home headline, service blurbs, "How a project works" steps
+- **Services page:** service descriptions, the six phases and their deliverables, the sheet list, "Code & design basis",
+  "Working with builders" (CAD files, multi-build licensing), and every FAQ answer
+- Plan licensing terms (build once per license, modifications offered)
+- The "not for construction" note on plan pages
+- Plan summaries for the Augusta (Laney Walker/Bethlehem) houses. Most plans have **no square footage or bedroom counts
+  yet**, because the old site didn't list them. Add them with `add-plan.html` → "edit an existing plan"
+
+## Preview locally
 
 ```powershell
 python -m http.server 8080
 ```
 
-Then open http://localhost:8080.
+## Publish on GitHub Pages
 
-## Publishing on GitHub Pages
+1. Create a repository on GitHub and push this folder to it.
+2. **Settings → Pages → Deploy from a branch → `main` / root.**
+3. To go live on `jlangford.com`, add a `CNAME` file containing `www.jlangford.com` and point the domain's DNS at GitHub Pages.
 
-1. Create a new repository on GitHub (e.g. `jlangford-website`).
-2. Push this folder to it.
-3. In the repo: **Settings → Pages → Build and deployment → Deploy from a branch → `main` / root**.
-4. The site will be live at `https://<your-username>.github.io/jlangford-website/`.
-
-When she's ready to go live on `jlangford.com`, add a `CNAME` file containing `www.jlangford.com`
-and point the domain's DNS at GitHub Pages. GitHub Pages hosting is free, so only the domain renewal costs anything.
+⚠️ Free GitHub Pages sites and their repositories are **public**. See the privacy note in HOW-TO-ADD-PLANS.md.
