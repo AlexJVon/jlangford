@@ -10,7 +10,7 @@ window.SITE = {
   address: ["5208 SW 91st Way, Suite 110", "Gainesville, FL 32608"],
   phone: "352.371.7187",
   email: "jennifer@jlangford.com",
-  licenses: "FL AR#16554 · GA RA#12597",
+  licenses: "FL AR#16554 · GA RA#12597 · SC #10227",
   social: {
     facebook: "https://www.facebook.com/jlangfordarchitect",
     linkedin: "http://www.linkedin.com/pub/jennifer-langford/14/43/b",
