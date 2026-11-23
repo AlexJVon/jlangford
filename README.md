@@ -56,6 +56,25 @@ Some copy was written to fill out the site and should be checked:
 python -m http.server 8080
 ```
 
+## Preview versions (one per branch)
+
+Every branch is published automatically by `.github/workflows/pages.yml`:
+
+| Branch | Address |
+| --- | --- |
+| `main` (latest) | `https://alexjvon.github.io/jlangford/` |
+| any other branch, e.g. `v3-darker` | `https://alexjvon.github.io/jlangford/v/v3-darker/` |
+
+Each page has a **Version** button in the bottom-left corner for switching between versions on the same page.
+To add a version without replacing anything, create a new branch and push it:
+
+```powershell
+git checkout -b v3-darker
+git push -u origin v3-darker
+```
+
+Deleting a branch on GitHub removes that version. Pages setting: **Settings → Pages → Branch: `gh-pages` / `(root)`**.
+
 ## Publish on GitHub Pages
 
 1. Create a repository on GitHub and push this folder to it.
