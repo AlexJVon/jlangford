@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f4ef">
+  <title>Contact — Jennifer Langford, AIA, CNU, PA</title>
+  <meta name="description" content="Contact Jennifer Langford, AIA, CNU, PA in Gainesville, Florida.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header" data-current="contact"></header>
+<script src="js/layout.js"></script>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Contact</p>
+      <h1>Let’s talk about your project</h1>
+      <p>Call, email, or fill in the short form below — it opens a ready-to-send email with your details.</p>
+    </div>
+  </section>
+
+  <section class="wrap" style="padding-bottom: clamp(48px, 7vw, 96px)">
+    <div class="contact">
+      <dl id="contact-info"></dl>
+      <iframe class="map" title="Map to the studio"
+        src="https://www.google.com/maps?q=5208+SW+91st+Way,+Gainesville,+FL+32608&output=embed"
+        loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="wrap">
+      <div class="contact">
+        <div>
+          <p class="eyebrow">Before we meet</p>
+          <h2>Helpful to have on hand</h2>
+          <p style="color:var(--ink-2)">None of this is required for a first conversation, but the more you have, the more useful that first meeting will be.</p>
+          <ul class="checklist">
+            <li>Property address, or the neighborhood you're considering</li>
+            <li>A boundary survey (and tree survey, if you have one)</li>
+            <li>Any HOA, deed-restriction or neighborhood design guidelines</li>
+            <li>A rough budget and when you'd like to move in</li>
+            <li>A list of rooms you need — and the ones you'd love to have</li>
+            <li>Photos of houses or rooms you like (Houzz and Pinterest boards are great)</li>
+            <li>Plans from the <a href="plans.html">Plan Library</a> that caught your eye</li>
+          </ul>
+        </div>
+        <form class="form" id="inquiry">
+          <div><label for="i-name">Your name</label><input class="field" id="i-name" required autocomplete="name"></div>
+          <div><label for="i-phone">Phone</label><input class="field" id="i-phone" type="tel" autocomplete="tel"></div>
+          <div class="full"><label for="i-type">I'm interested in</label>
+            <select class="field" id="i-type">
+              <option>A custom home</option>
+              <option>A plan from the Plan Library</option>
+              <option>A mixed-use or live/work building</option>
+              <option>Multi-family / townhomes</option>
+              <option>Neighborhood or town planning</option>
+              <option>Builder / developer services</option>
+              <option>Something else</option>
+            </select></div>
+          <div><label for="i-where">Project location</label><input class="field" id="i-where" placeholder="City or address"></div>
+          <div><label for="i-when">Ideal timeline</label><input class="field" id="i-when" placeholder="e.g. start next spring"></div>
+          <div class="full"><label for="i-msg">Tell us about it</label><textarea class="field" id="i-msg" placeholder="Size, budget, lot, must-haves…"></textarea>
+            <p class="hint">Opens your email app with this message filled in — nothing is sent until you press send.</p></div>
+          <div class="full"><button class="btn" type="submit">Write the email</button></div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer"></footer>
+<script src="js/glossary.js"></script>
+<script src="js/site.js"></script>
+<script>
+  (function () {
+    var tel = "+1" + SITE.phone.replace(/\D/g, "");
+    document.getElementById("contact-info").innerHTML =
+      '<dt>Email</dt><dd><a href="mailto:' + SITE.email + '">' + SITE.email + "</a></dd>" +
+      '<dt>Phone</dt><dd><a href="tel:' + tel + '">' + SITE.phone + "</a></dd>" +
+      "<dt>Studio</dt><dd>" + SITE.address.join("<br>") + "</dd>" +
+      '<dt>Licensed in</dt><dd style="font-size:1.2rem">' + SITE.licenses.replace("FL", "Florida").replace("GA", "Georgia").replace("SC", "South Carolina") + "</dd>";
+
+    var params = new URLSearchParams(location.search);
+    if (params.get("plan")) {
+      document.getElementById("i-type").value = "A plan from the Plan Library";
+      document.getElementById("i-msg").value = "I'm interested in the plan: " + params.get("plan") + "\n\n";
+    }
+
+    document.getElementById("inquiry").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var v = function (id) { return document.getElementById(id).value.trim(); };
+      var lines = ["Name: " + v("i-name")];
+      if (v("i-phone")) lines.push("Phone: " + v("i-phone"));
+      lines.push("Interested in: " + v("i-type"));
+      if (v("i-where")) lines.push("Location: " + v("i-where"));
+      if (v("i-when")) lines.push("Timeline: " + v("i-when"));
+      var body = lines.join("\n") + "\n\n" + v("i-msg");
+      location.href = "mailto:" + SITE.email + "?subject=" + encodeURIComponent("Project inquiry — " + v("i-type")) +
+        "&body=" + encodeURIComponent(body);
+    });
+  })();
+</script>
+<script src="versions.js"></script></body>
+</html>

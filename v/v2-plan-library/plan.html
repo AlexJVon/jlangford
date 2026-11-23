@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f4ef">
+  <title>Plan — Jennifer Langford, AIA, CNU, PA</title>
+  <meta name="description" content="Drawings and specifications from the Plan Library of Jennifer Langford, AIA, CNU, PA.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header" data-current="plans"></header>
+<script src="js/layout.js"></script>
+
+<main id="main">
+  <div class="wrap" id="plan"></div>
+</main>
+
+<footer class="site-footer"></footer>
+<script src="js/glossary.js"></script>
+<script src="js/projects.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/site.js"></script>
+<script>
+  (function () {
+    var root = document.getElementById("plan");
+    var id = new URLSearchParams(location.search).get("id");
+    var p = PLANS.filter(function (x) { return x.id === id; })[0];
+
+    if (!p) {
+      root.innerHTML = '<section class="page-head"><p class="eyebrow">Plan Library</p><h1>Plan not found</h1>' +
+        '<p>That plan may have been renamed or removed.</p><a class="btn" href="plans.html">Back to the Plan Library</a></section>';
+      return;
+    }
+
+    document.title = p.name + " — Plan Library — " + SITE.fullName;
+    var s = p.specs || {};
+    var sheets = p.sheets || [];
+    var project = p.project && projectById(p.project);
+    var listed = PLANS.filter(function (x) { return !x.hidden; });
+    var photoTypes = ["Photo", "Rendering"];
+
+    function sheetItems(list) {
+      return list.filter(function (x) { return !isPdf(x.src) || x.thumb; }).map(function (x) {
+        return { src: isPdf(x.src) ? x.thumb : x.src, title: [x.sheet, x.title].filter(Boolean).join("  "), caption: x.type };
+      });
+    }
+    var viewable = sheets.filter(function (x) { return !isPdf(x.src); });
+    function openSheet(sheet) {
+      if (isPdf(sheet.src)) { window.open(imgSrc(sheet.src), "_blank", "noopener"); return; }
+      var items = viewable.map(function (x) { return { src: x.src, title: [x.sheet, x.title].filter(Boolean).join("  "), caption: x.type }; });
+      Viewer.open({ items: items, start: viewable.indexOf(sheet), light: true, label: p.name });
+    }
+
+    /* ---------- Header ---------- */
+    var cover = planCover(p);
+    var coverSheet = sheets.filter(function (x) { return x.src === cover; })[0] || sheets[0];
+    var heroIsPhoto = coverSheet && photoTypes.indexOf(coverSheet.type) >= 0;
+
+    var glance = [];
+    if (s.heated) glance.push([fmtNum(s.heated), "heated-sf", "Heated sq ft"]);
+    if (s.underRoof) glance.push([fmtNum(s.underRoof), "under-roof", "Under roof"]);
+    if (s.beds) glance.push([s.beds, null, s.beds === 1 ? "Bedroom" : "Bedrooms"]);
+    if (s.baths) glance.push([s.baths, null, "Baths"]);
+    if (s.stories) glance.push([s.stories, null, s.stories === 1 ? "Story" : "Stories"]);
+    if (s.width) glance.push([s.width, null, "Wide"]);
+    if (s.depth) glance.push([s.depth, null, "Deep"]);
+
+    var chips = [p.collection, p.style, p.year && ("Designed " + p.year)].concat(p.certifications || []).filter(Boolean);
+    var mail = "mailto:" + SITE.email + "?subject=" + encodeURIComponent("Plan inquiry: " + p.name) +
+      "&body=" + encodeURIComponent("Hi Jennifer,\n\nI'm interested in " + p.name + " (" + location.href + ").\n\nMy lot / location:\nWhat I'd like to do (build as drawn / customize / question):\n\nThanks,\n");
+
+    var html = '<nav class="crumbs" aria-label="Breadcrumb" style="padding-top:clamp(20px,3vw,32px)"><a href="plans.html">Plan Library</a>' +
+      (p.collection ? ' › <a href="plans.html?collection=' + encodeURIComponent(p.collection) + '">' + esc(p.collection) + "</a>" : "") +
+      " › " + esc(p.name) + "</nav>";
+
+    html += '<div class="plan-head">' +
+      (coverSheet ? '<button class="plan-hero' + (heroIsPhoto ? " plan-hero--photo" : "") + '" type="button" id="hero">' +
+        '<img src="' + esc(imgSrc(isPdf(coverSheet.src) ? coverSheet.thumb : coverSheet.src)) + '" alt="' + esc(coverSheet.title || p.name) + '">' +
+        '<span class="plan-hero__hint">' + (isPdf(coverSheet.src) ? "Open PDF" : "Tap to zoom") + "</span></button>" : "<div></div>") +
+      "<div>" +
+        '<p class="eyebrow">' + termify(p.type || "Plan") + (p.location ? " · " + esc(p.location) : "") + "</p>" +
+        "<h1>" + esc(p.name) + "</h1>" +
+        (chips.length ? '<ul class="chips">' + chips.map(function (c) { return "<li>" + termify(c) + "</li>"; }).join("") + "</ul>" : "") +
+        (glance.length ? '<div class="glance">' + glance.map(function (g) {
+          return "<div><b>" + esc(g[0]) + "</b><span>" + (g[1] ? termify(g[2], g[1]) : esc(g[2])) + "</span></div>";
+        }).join("") + "</div>" : "") +
+        (p.summary ? '<p class="lead" style="font-size:1.08rem">' + esc(p.summary) + "</p>" : "") +
+        ((p.features || []).length ? '<ul class="features">' + p.features.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + "</ul>" : "") +
+        '<div class="plan-actions">' +
+          '<a class="btn" href="' + mail + '">Ask about this plan</a>' +
+          (project ? '<a class="btn btn--ghost" href="portfolio.html#project=' + encodeURIComponent(project.id) + '">See it built</a>' : "") +
+          '<button class="btn btn--ghost" type="button" onclick="window.print()">Print spec sheet</button>' +
+        "</div>" +
+      "</div></div>";
+
+    /* ---------- Drawing set ---------- */
+    var types = [];
+    sheets.forEach(function (x) { if (types.indexOf(x.type) < 0) types.push(x.type); });
+    html += '<section class="section section--tight" style="border-top:1px solid var(--line)">' +
+      '<div class="section-head"><div><p class="eyebrow">The drawing set</p><h2>' + sheets.length + (sheets.length === 1 ? " sheet" : " sheets") + "</h2>" +
+      "<p>Tap a sheet to open it full screen. Pinch, scroll or use the + / − buttons to zoom into the details.</p></div></div>" +
+      (types.length > 1 ? '<div class="filters no-print" id="sheet-filters" role="group" aria-label="Filter sheets"><button class="filter" type="button" data-t="" aria-pressed="true">All</button>' +
+        types.map(function (t) { return '<button class="filter" type="button" data-t="' + esc(t) + '" aria-pressed="false">' + esc(t) + "</button>"; }).join("") + "</div>" : "") +
+      '<div class="sheet-grid" id="sheets"></div></section>';
+
+    /* ---------- Specifications ---------- */
+    var groups = [];
+    var size = [];
+    if (s.heated) size.push(["Heated / conditioned", fmtNum(s.heated) + " sq ft"]);
+    if (s.underRoof) size.push(["Total under roof", fmtNum(s.underRoof) + " sq ft"]);
+    if (s.beds) size.push(["Bedrooms", s.beds]);
+    if (s.baths) size.push(["Bathrooms", s.baths]);
+    if (s.stories) size.push(["Stories", s.stories]);
+    if (s.width) size.push(["Overall width", s.width]);
+    if (s.depth) size.push(["Overall depth", s.depth]);
+    if (s.minLot) size.push(["Min. lot width", s.minLot]);
+    if (s.garage) size.push(["Garage", s.garage]);
+    if (size.length) groups.push(["Size & Layout", size]);
+    Object.keys(p.tech || {}).forEach(function (k) { groups.push([k, p.tech[k]]); });
+
+    html += '<section class="section section--tight" style="border-top:1px solid var(--line)">' +
+      '<div class="section-head"><div><p class="eyebrow">For builders &amp; architects</p><h2>Technical specifications</h2></div></div>';
+    if (groups.length) {
+      html += '<div class="spec-wrap">' + groups.map(function (g) {
+        return '<div class="spec"><h3>' + esc(g[0]) + "</h3><dl>" + g[1].map(function (r) {
+          return "<div><dt>" + termify(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>";
+        }).join("") + "</dl></div>";
+      }).join("") + "</div>";
+    }
+    html += '<div class="callout"><strong>Need more than what\'s shown?</strong> Full construction documents — foundation and framing coordination, ' +
+      '<span class="term" data-term="wall-section">wall sections</span>, <span class="term" data-term="schedule">door &amp; window schedules</span>, ' +
+      'and details — are available to licensed builders and clients. Drawings shown here are for reference only and are not for construction. ' +
+      'Site-specific engineering, <span class="term" data-term="energy-calc">energy compliance</span> and local code review are required for every build.</div></section>';
+
+    /* ---------- Built photos ---------- */
+    if (project) {
+      html += '<section class="section section--tight" style="border-top:1px solid var(--line)"><div class="section-head"><div><p class="eyebrow">Built</p><h2>' +
+        esc(project.name) + "</h2></div>" + '<a class="text-link" href="portfolio.html#project=' + encodeURIComponent(project.id) + '">All ' + project.images.length + " photos →</a></div>" +
+        '<div class="sheet-grid" id="built"></div></section>';
+    }
+
+    /* ---------- CTA + pager ---------- */
+    html += '<section class="section section--tight no-print"><div class="cta-box"><div><h2>Like this plan?</h2>' +
+      "<p>Plans can be licensed to build as drawn, or adapted to your lot, budget and family — flipped, resized, re-styled or re-engineered for a coastal site. " +
+      'Every license includes the right to build once; the drawings remain the architect\'s <span class="term" data-term="instruments">instruments of service</span>.</p></div>' +
+      '<div class="cta-box__actions"><a class="btn" href="' + mail + '">Ask about this plan</a><a class="btn btn--ghost" href="services.html#plans">How plan licensing works</a></div></div></section>';
+
+    var i = listed.indexOf(p), prev = listed[(i - 1 + listed.length) % listed.length], next = listed[(i + 1) % listed.length];
+    if (i >= 0 && listed.length > 1) {
+      html += '<nav class="pager no-print" aria-label="More plans"><a href="plan.html?id=' + encodeURIComponent(prev.id) + '"><small>← Previous</small><span>' + esc(prev.name) + "</span></a>" +
+        '<a href="plan.html?id=' + encodeURIComponent(next.id) + '" style="text-align:right"><small>Next →</small><span>' + esc(next.name) + "</span></a></nav>";
+    }
+    root.innerHTML = html;
+
+    /* ---------- Wire up ---------- */
+    var hero = document.getElementById("hero");
+    if (hero) hero.addEventListener("click", function () { openSheet(coverSheet); });
+
+    function renderSheets(type) {
+      var box = document.getElementById("sheets");
+      box.innerHTML = "";
+      sheets.filter(function (x) { return !type || x.type === type; }).forEach(function (x) {
+        var photo = photoTypes.indexOf(x.type) >= 0;
+        var b = el("button", { class: "sheet", type: "button", "aria-label": "Open " + (x.title || x.type) }, []);
+        b.innerHTML = '<div class="sheet__img' + (photo ? " sheet__img--photo" : "") + '">' +
+          (isPdf(x.src) && !x.thumb ? '<span class="sheet__pdf">PDF</span>' : '<img src="' + esc(imgSrc(isPdf(x.src) ? x.thumb : x.src)) + '" alt="" loading="lazy">') + "</div>" +
+          '<div class="sheet__label">' + (x.sheet ? '<span class="sheet__no">' + esc(x.sheet) + "</span>" : "") +
+          '<span class="sheet__title">' + esc(x.title || x.type) + '<span class="sheet__type">' + esc(x.type || "") + (isPdf(x.src) ? " · PDF" : "") + "</span></span></div>";
+        b.addEventListener("click", function () { openSheet(x); });
+        box.appendChild(b);
+      });
+    }
+    renderSheets("");
+    var sf = document.getElementById("sheet-filters");
+    if (sf) sf.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      sf.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
+      renderSheets(b.dataset.t);
+    });
+
+    if (project) {
+      var built = document.getElementById("built");
+      project.images.slice(0, 4).forEach(function (img, k) {
+        var src = typeof img === "string" ? img : img.src;
+        var b = el("button", { class: "sheet", type: "button", "aria-label": "Open photo " + (k + 1) }, []);
+        b.innerHTML = '<div class="sheet__img sheet__img--photo"><img src="' + esc(imgSrc(src)) + '" alt="" loading="lazy"></div>';
+        b.addEventListener("click", function () { openProject(project, k); });
+        built.appendChild(b);
+      });
+    }
+    prepTerms();
+  })();
+</script>
+<script src="../../versions.js"></script></body>
+</html>

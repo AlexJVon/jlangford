@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f4ef">
+  <meta name="robots" content="noindex">
+  <title>Add a Plan — Studio Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header" data-current="tools"></header>
+<script src="js/layout.js"></script>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Studio tools · not shown in the menu</p>
+      <h1>Add or update a plan</h1>
+      <p>Fill in what you know — everything except the name and drawings is optional. The box on the right writes the code for you and shows the exact steps to put it on the website.</p>
+      <div style="max-width:520px;margin-top:20px">
+        <label class="eyebrow" for="load" style="display:block;margin-bottom:8px">Or edit an existing plan</label>
+        <select class="field" id="load"><option value="">— Start a new plan —</option></select>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap tool">
+    <form id="f" autocomplete="off">
+      <fieldset>
+        <legend>1. The basics</legend>
+        <div class="form">
+          <div class="full"><label for="name">Plan name *</label><input class="field" id="name" required placeholder="The Magnolia"></div>
+          <div><label for="id">Web address name</label><input class="field" id="id" placeholder="made automatically">
+            <p class="hint">Also the folder name for the drawings.</p></div>
+          <div><label for="type">Building type</label><select class="field" id="type">
+            <option>Single-Family</option><option>Cottage</option><option>Townhouse</option><option>Live/Work</option>
+            <option>Mixed-Use</option><option>Multi-Family</option><option>Commercial</option><option>Neighborhood Plan</option><option>ADU</option></select></div>
+          <div><label for="collection">Collection</label><input class="field" id="collection" list="collections" placeholder="e.g. Custom Residential"><datalist id="collections"></datalist></div>
+          <div><label for="location">Location</label><input class="field" id="location" placeholder="Gainesville, FL"></div>
+          <div><label for="style">Style</label><input class="field" id="style" placeholder="Craftsman, Florida Vernacular…"></div>
+          <div><label for="year">Year designed</label><input class="field" id="year" inputmode="numeric" placeholder="2024"></div>
+          <div class="full"><label for="project">Built photos in the portfolio</label><select class="field" id="project"><option value="">— none —</option></select></div>
+          <div class="full"><label style="display:flex;gap:10px;align-items:center;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--ink)"><input type="checkbox" id="hidden" style="width:18px;height:18px"> Keep it out of the Plan Library list (storage only)</label>
+            <p class="hint">Hidden plans aren't listed, but anyone with the direct link can still open them. Don't upload anything that must stay private.</p></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>2. Size &amp; layout<small>These power the search filters.</small></legend>
+        <div class="grid3">
+          <div><label for="heated">Heated sq ft</label><input class="field" id="heated" inputmode="numeric" placeholder="1850"></div>
+          <div><label for="underRoof">Under roof sq ft</label><input class="field" id="underRoof" inputmode="numeric" placeholder="2600"></div>
+          <div><label for="stories">Stories</label><input class="field" id="stories" inputmode="numeric" placeholder="2"></div>
+          <div><label for="beds">Bedrooms</label><input class="field" id="beds" inputmode="numeric" placeholder="3"></div>
+          <div><label for="baths">Bathrooms</label><input class="field" id="baths" inputmode="decimal" placeholder="2.5"></div>
+          <div><label for="garage">Garage</label><input class="field" id="garage" placeholder="2-car, alley"></div>
+          <div><label for="width">Overall width</label><input class="field" id="width" placeholder="32'-0&quot;"></div>
+          <div><label for="depth">Overall depth</label><input class="field" id="depth" placeholder="58'-0&quot;"></div>
+          <div><label for="lotFt">Min. lot width (ft)</label><input class="field" id="lotFt" inputmode="numeric" placeholder="42"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>3. Describe it<small>Written for homeowners.</small></legend>
+        <div class="form">
+          <div class="full"><label for="summary">Short description</label><textarea class="field" id="summary" placeholder="What makes this plan special, who it's for, how it lives…"></textarea></div>
+          <div class="full"><label for="features">Highlights — one per line</label><textarea class="field" id="features" style="min-height:100px" placeholder="Wrap-around porch&#10;First-floor owner's suite"></textarea></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>4. Technical details<small>For builders and architects. Skip any you don't want to show.</small></legend>
+        <div class="form" id="tech"></div>
+        <button class="btn btn--ghost btn--sm" type="button" id="add-row" style="margin-top:14px">+ Add another detail</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>5. Drawings<small>Images (JPG, PNG) or PDFs. The first one is the main picture.</small></legend>
+        <label class="drop" id="drop">
+          <strong>Choose drawings or drag them here</strong>
+          Sheet type is guessed from the file name — check it below.
+          <input type="file" id="files" multiple accept="image/*,application/pdf">
+        </label>
+        <ul class="sheet-rows" id="rows"></ul>
+      </fieldset>
+    </form>
+
+    <aside class="out" aria-label="Result">
+      <p class="eyebrow">Preview</p>
+      <div id="preview" style="max-width:340px;margin-bottom:24px"></div>
+      <p class="eyebrow">Code for js/plans.js</p>
+      <pre id="code"></pre>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+        <button class="btn" type="button" id="copy">Copy code</button>
+        <button class="btn btn--ghost" type="button" id="dl">Download as file</button>
+      </div>
+      <p class="eyebrow">Put it on the website</p>
+      <ol class="howto" id="howto"></ol>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer"></footer>
+<script src="js/glossary.js"></script>
+<script src="js/projects.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/site.js"></script>
+<script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    var sheets = [];          // { src, title, type, sheet, file?, url? }
+    var editing = null;
+
+    var TECH = [
+      ["Structure & Envelope", "Foundation", "Slab-on-grade, stem wall…"],
+      ["Structure & Envelope", "Walls", "2x6 wood frame, CMU, ICF…"],
+      ["Structure & Envelope", "Roof", "8:12 standing-seam metal…"],
+      ["Structure & Envelope", "Ceiling heights", "10' first floor, 9' second"],
+      ["Structure & Envelope", "Windows & doors", "Impact-rated, low-E…"],
+      ["Systems & Energy", "HVAC", "Ducted heat pump, Manual J sized"],
+      ["Systems & Energy", "Insulation", "R-38 attic, R-13 walls…"],
+      ["Systems & Energy", "Energy", "HERS 55"],
+      ["Code & Performance", "Design wind speed", "130 mph, Exposure B"],
+      ["Code & Performance", "Flood zone", "Zone X"],
+      ["Code & Performance", "Certifications", "LEED Silver, FORTIFIED Roof"],
+      ["Credits", "Builder", ""],
+      ["Credits", "Engineer of record", ""],
+      ["Credits", "Photographer", ""]
+    ];
+
+    function techRow(group, label, value, placeholder) {
+      var d = document.createElement("div");
+      d.className = "full tech-row";
+      d.style.cssText = "display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr);gap:8px";
+      d.innerHTML = '<input class="field" data-k="label" aria-label="Detail name" value="' + esc(label) + '">' +
+        '<input class="field" data-k="value" aria-label="' + esc(label || "Detail") + '" placeholder="' + esc(placeholder || "") + '" value="' + esc(value || "") + '">';
+      d.dataset.group = group;
+      $("tech").appendChild(d);
+    }
+    function resetTech() { $("tech").innerHTML = ""; TECH.forEach(function (t) { techRow(t[0], t[1], "", t[2]); }); }
+    resetTech();
+    $("add-row").addEventListener("click", function () { techRow("Other", "", "", ""); });
+
+    // Lists from existing data
+    var cols = PLANS.map(function (p) { return p.collection; }).filter(function (c, i, a) { return c && a.indexOf(c) === i; });
+    $("collections").innerHTML = cols.map(function (c) { return '<option value="' + esc(c) + '">'; }).join("");
+    PROJECTS.forEach(function (p) { $("project").insertAdjacentHTML("beforeend", '<option value="' + p.id + '">' + esc(p.name) + "</option>"); });
+    PLANS.forEach(function (p) { $("load").insertAdjacentHTML("beforeend", '<option value="' + p.id + '">' + esc(p.name) + "</option>"); });
+
+    function guessType(name) {
+      var n = name.toLowerCase();
+      if (/wall.?sec/.test(n)) return "Wall Section";
+      if (/sect/.test(n)) return "Section";
+      if (/site|master|map/.test(n)) return "Site Plan";
+      if (/elev|\bel\b|facade/.test(n)) return "Elevation";
+      if (/floor|\bfp|plan|level|1st|2nd|first|second/.test(n)) return "Floor Plan";
+      if (/detail|dtl/.test(n)) return "Detail";
+      if (/render|persp/.test(n)) return "Rendering";
+      if (/photo|img_|dsc|\.jpe?g$/.test(n)) return "Photo";
+      return "Other";
+    }
+    function titleFrom(name) {
+      return name.replace(/\.[a-z0-9]+$/i, "").replace(/[_-]+/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
+    function planId() { return $("id").value.trim() || slugify($("name").value || "new-plan"); }
+
+    function addFiles(list) {
+      [].forEach.call(list, function (file) {
+        sheets.push({ file: file, url: URL.createObjectURL(file), title: titleFrom(file.name), type: guessType(file.name), sheet: "" });
+      });
+      renderRows(); update();
+    }
+    $("files").addEventListener("change", function () { addFiles(this.files); this.value = ""; });
+    var drop = $("drop");
+    ["dragenter", "dragover"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); }); });
+    ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("is-over"); }); });
+    drop.addEventListener("drop", function (e) { addFiles(e.dataTransfer.files); });
+
+    var TYPES = ["Floor Plan", "Elevation", "Section", "Wall Section", "Site Plan", "Detail", "Rendering", "Photo", "Other"];
+    function renderRows() {
+      $("rows").innerHTML = "";
+      sheets.forEach(function (s, i) {
+        var li = document.createElement("li");
+        li.className = "sheet-row";
+        var name = s.file ? s.file.name : s.src;
+        var thumb = s.url && !/pdf/i.test(s.file.type) ? '<img src="' + s.url + '" alt="">' : (/\.pdf$/i.test(name) ? "PDF" : '<img src="' + esc(imgSrc(s.src)) + '" alt="">');
+        li.innerHTML = '<div class="sheet-row__img">' + thumb + "</div>" +
+          '<div class="sheet-row__fields">' +
+            '<input class="field" data-k="title" aria-label="Sheet title" value="' + esc(s.title) + '">' +
+            '<select class="field" data-k="type" aria-label="Sheet type">' + TYPES.map(function (t) { return "<option" + (t === s.type ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select>" +
+            '<input class="field" data-k="sheet" aria-label="Sheet number" placeholder="A1.1" value="' + esc(s.sheet || "") + '">' +
+            '<span class="sheet-row__file">' + esc(decodeURIComponent(name)) + "</span>" +
+          "</div>" +
+          '<div class="sheet-row__btns"><button type="button" data-a="up" aria-label="Move up">↑</button><button type="button" data-a="down" aria-label="Move down">↓</button><button type="button" data-a="del" aria-label="Remove">✕</button></div>';
+        li.addEventListener("input", function (e) { var k = e.target.dataset.k; if (k) { s[k] = e.target.value; update(); } });
+        li.addEventListener("change", function (e) { var k = e.target.dataset.k; if (k) { s[k] = e.target.value; update(); } });
+        li.querySelector(".sheet-row__btns").addEventListener("click", function (e) {
+          var a = e.target.dataset.a; if (!a) return;
+          if (a === "del") sheets.splice(i, 1);
+          if (a === "up" && i > 0) sheets.splice(i - 1, 0, sheets.splice(i, 1)[0]);
+          if (a === "down" && i < sheets.length - 1) sheets.splice(i + 1, 0, sheets.splice(i, 1)[0]);
+          renderRows(); update();
+        });
+        $("rows").appendChild(li);
+      });
+    }
+
+    function num(id) { var v = $(id).value.trim(); return v === "" || isNaN(Number(v)) ? null : Number(v); }
+    function str(id) { return $(id).value.trim(); }
+
+    function build() {
+      var id = planId();
+      var p = { id: id, name: str("name") || "New Plan", type: str("type") };
+      ["collection", "location", "year", "style"].forEach(function (k) { if (str(k)) p[k] = str(k); });
+      if ($("hidden").checked) p.hidden = true;
+      if (str("project")) p.project = str("project");
+      var s = {};
+      ["heated", "underRoof", "beds", "baths", "stories", "lotFt"].forEach(function (k) { if (num(k) !== null) s[k] = num(k); });
+      if (s.lotFt) s.minLot = s.lotFt + "'";
+      ["width", "depth", "garage"].forEach(function (k) { if (str(k)) s[k] = str(k); });
+      if (Object.keys(s).length) p.specs = s;
+      var feats = str("features").split(/\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+      if (feats.length) p.features = feats;
+      if (str("summary")) p.summary = str("summary");
+      var tech = {};
+      document.querySelectorAll(".tech-row").forEach(function (r) {
+        var l = r.querySelector('[data-k="label"]').value.trim(), v = r.querySelector('[data-k="value"]').value.trim();
+        if (l && v) (tech[r.dataset.group] = tech[r.dataset.group] || []).push([l, v]);
+      });
+      if (Object.keys(tech).length) p.tech = tech;
+      p.sheets = sheets.map(function (x) {
+        var o = { src: x.file ? "plans/" + id + "/" + encodeURIComponent(x.file.name) : x.src, title: x.title, type: x.type };
+        if (x.sheet) o.sheet = x.sheet;
+        return o;
+      });
+      return p;
+    }
+
+    function J(v) { return JSON.stringify(v); }
+    function toCode(p) {
+      var L = ["  {"];
+      var head = ["id", "name", "type", "collection", "location", "year", "style", "project", "hidden"].filter(function (k) { return p[k] !== undefined; });
+      L.push("    " + head.map(function (k) { return k + ": " + J(p[k]); }).join(", ") + ",");
+      if (p.specs) L.push("    specs: { " + Object.keys(p.specs).map(function (k) { return k + ": " + J(p.specs[k]); }).join(", ") + " },");
+      if (p.features) L.push("    features: " + J(p.features) + ",");
+      if (p.summary) L.push("    summary: " + J(p.summary) + ",");
+      if (p.tech) {
+        L.push("    tech: {");
+        Object.keys(p.tech).forEach(function (g, i, a) {
+          L.push("      " + J(g) + ": [" + p.tech[g].map(J).join(", ") + "]" + (i < a.length - 1 ? "," : ""));
+        });
+        L.push("    },");
+      }
+      L.push("    sheets: [");
+      p.sheets.forEach(function (s, i) {
+        L.push("      { " + Object.keys(s).map(function (k) { return k + ": " + J(s[k]); }).join(", ") + " }" + (i < p.sheets.length - 1 ? "," : ""));
+      });
+      L.push("    ]");
+      L.push("  },");
+      return L.join("\n");
+    }
+
+    function update() {
+      var p = build();
+      $("code").textContent = toCode(p);
+      $("preview").innerHTML = "";
+      var first = sheets[0];
+      var card = planCard(Object.assign({}, p, { cover: first ? (first.file ? first.url : first.src) : "" }), first && first.file && !/pdf/i.test(first.file.type) ? first.url : null);
+      card.classList.add("is-in");
+      card.removeAttribute("href");
+      $("preview").appendChild(card);
+
+      var newFiles = sheets.filter(function (s) { return s.file; });
+      var steps = [];
+      if (newFiles.length) {
+        steps.push("On your computer, make a folder named <code>" + esc(p.id) + "</code> and put these " + newFiles.length + " files in it: " +
+          newFiles.map(function (s) { return "<code>" + esc(s.file.name) + "</code>"; }).join(", ") + ".");
+        steps.push("On GitHub, open the repository, click into the <code>plans</code> folder, choose <b>Add file → Upload files</b>, and drag the whole <code>" + esc(p.id) + "</code> folder in. Click <b>Commit changes</b>.");
+      }
+      steps.push("Click <b>Copy code</b> above.");
+      if (editing) {
+        steps.push("On GitHub open <code>js/plans.js</code> and click the pencil (Edit). Find the block that starts with <code>id: \"" + esc(editing) + "\"</code>, select from its <code>{</code> to its closing <code>},</code>, and paste over it.");
+      } else {
+        steps.push("On GitHub open <code>js/plans.js</code> and click the pencil (Edit). Scroll to the bottom, click on the empty line just above <code>ADD NEW PLANS ABOVE THIS LINE</code>, and paste.");
+      }
+      steps.push("Click <b>Commit changes</b>. The site updates in about a minute — the plan will be at <code>plan.html?id=" + esc(p.id) + "</code>.");
+      $("howto").innerHTML = steps.map(function (s) { return "<li>" + s + "</li>"; }).join("");
+    }
+
+    $("f").addEventListener("input", function (e) { if (!e.target.closest(".sheet-row")) update(); });
+    $("f").addEventListener("change", function (e) { if (!e.target.closest(".sheet-row")) update(); });
+
+    $("copy").addEventListener("click", function () {
+      var btn = this, txt = $("code").textContent;
+      function done() { btn.textContent = "Copied ✓"; setTimeout(function () { btn.textContent = "Copy code"; }, 1800); }
+      if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
+      function fallback() {
+        var r = document.createRange(); r.selectNodeContents($("code"));
+        var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        try { document.execCommand("copy"); done(); } catch (e) { btn.textContent = "Select the code and copy it"; }
+      }
+    });
+    $("dl").addEventListener("click", function () {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([$("code").textContent], { type: "text/plain" }));
+      a.download = planId() + "-plan-code.txt";
+      a.click();
+    });
+
+    // Load an existing plan for editing
+    $("load").addEventListener("change", function () {
+      var p = PLANS.filter(function (x) { return x.id === this.value; }, this)[0];
+      editing = p ? p.id : null;
+      $("f").reset(); resetTech(); sheets = [];
+      if (p) {
+        var s = p.specs || {};
+        $("name").value = p.name; $("id").value = p.id; $("type").value = p.type || "Single-Family";
+        ["collection", "location", "year", "style"].forEach(function (k) { $(k).value = p[k] || ""; });
+        $("project").value = p.project || ""; $("hidden").checked = !!p.hidden;
+        ["heated", "underRoof", "beds", "baths", "stories", "garage", "width", "depth", "lotFt"].forEach(function (k) { $(k).value = s[k] != null ? s[k] : ""; });
+        $("summary").value = p.summary || ""; $("features").value = (p.features || []).join("\n");
+        Object.keys(p.tech || {}).forEach(function (g) {
+          p.tech[g].forEach(function (r) {
+            var row = [].filter.call(document.querySelectorAll(".tech-row"), function (x) {
+              return x.querySelector('[data-k="label"]').value === r[0] && !x.querySelector('[data-k="value"]').value;
+            })[0];
+            if (row) { row.dataset.group = g; row.querySelector('[data-k="value"]').value = r[1]; }
+            else techRow(g, r[0], r[1], "");
+          });
+        });
+        sheets = (p.sheets || []).map(function (x) { return { src: x.src, title: x.title || "", type: x.type || "Other", sheet: x.sheet || "" }; });
+      }
+      renderRows(); update();
+    });
+
+    update();
+  })();
+</script>
+<script src="../../versions.js"></script></body>
+</html>

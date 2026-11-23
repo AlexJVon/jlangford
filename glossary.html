@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f4ef">
+  <title>Glossary — Jennifer Langford, AIA, CNU, PA</title>
+  <meta name="description" content="Plain-English definitions of architecture, building and town-planning terms.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header" data-current="glossary"></header>
+<script src="js/layout.js"></script>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Glossary</p>
+      <h1>Architecture in plain English</h1>
+      <p>The words architects and builders use, explained. Anywhere on the site, a word with a dotted underline links back to these definitions.</p>
+    </div>
+  </section>
+  <section class="wrap" style="padding-bottom: clamp(56px, 9vw, 120px)">
+    <div class="gloss-tools">
+      <input class="field" id="gq" type="search" placeholder="Search terms…" aria-label="Search terms">
+      <div class="filters" style="margin:0" role="group" aria-label="Show">
+        <button class="filter" type="button" data-k="" aria-pressed="true">All</button>
+        <button class="filter" type="button" data-k="everyday" aria-pressed="false">Everyday</button>
+        <button class="filter" type="button" data-k="technical" aria-pressed="false">Technical</button>
+      </div>
+    </div>
+    <div class="gloss" id="gloss"></div>
+  </section>
+</main>
+
+<footer class="site-footer"></footer>
+<script src="js/glossary.js"></script>
+<script src="js/site.js"></script>
+<script>
+  (function () {
+    var box = document.getElementById("gloss"), kind = "", q = "";
+    var keys = Object.keys(GLOSSARY).sort(function (a, b) { return GLOSSARY[a].term.localeCompare(GLOSSARY[b].term); });
+    function render() {
+      box.innerHTML = keys.filter(function (k) {
+        var g = GLOSSARY[k];
+        return (!kind || g.kind === kind) && (!q || (g.term + " " + g.def).toLowerCase().indexOf(q) >= 0);
+      }).map(function (k) {
+        var g = GLOSSARY[k];
+        return '<article id="' + k + '"><h3>' + esc(g.term) + "<small>" + (g.kind === "technical" ? "Technical" : "Everyday") + "</small></h3><p>" + esc(g.def) + "</p></article>";
+      }).join("") || '<p class="empty">No matching terms.</p>';
+    }
+    document.getElementById("gq").addEventListener("input", function () { q = this.value.trim().toLowerCase(); render(); });
+    document.querySelector(".gloss-tools .filters").addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      this.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
+      kind = b.dataset.k; render();
+    });
+    render();
+    if (location.hash) { var t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
+  })();
+</script>
+<script src="versions.js"></script></body>
+</html>
